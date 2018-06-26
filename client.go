@@ -122,7 +122,7 @@ func (c *Client) ListDatapointByQuery(query Queries, disablePresampling ...bool)
 		"query", "")
 }
 
-func (c *Client) GeneratePresignedUrl(query Queries, expireSeconds int) (string, error) {
+func (c *Client) GeneratePresignedUrl(query Queries, expireSeconds int,endpoint ...string) (string, error) {
 	buf, err := json.Marshal(&ListDatapointArgs{Queries: query})
 	if nil != err {
 		return "", err
@@ -140,6 +140,9 @@ func (c *Client) GeneratePresignedUrl(query Queries, expireSeconds int) (string,
 	val := url.Values{
 		"query":         []string{req.Param("query")},
 		"authorization": []string{req.Header(http.AUTHORIZATION)},
+	}
+	if len(endpoint) > 0 {
+		return fmt.Sprintf("%s%s?%s", endpoint[0], URI_DATAPOINT, val.Encode()), nil
 	}
 	return fmt.Sprintf("%s%s?%s", c.Config.Endpoint, URI_DATAPOINT, val.Encode()), nil
 }
