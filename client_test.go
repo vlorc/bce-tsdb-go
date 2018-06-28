@@ -106,7 +106,7 @@ func Test_GeneratePresignedUrl(t *testing.T) {
 		Filters: Filter{
 			Start: "12 hour ago",
 		},
-	}})
+	}},1800)
 	if nil != err {
 		t.Error("GeneratePresignedUrl: ", err)
 		return
