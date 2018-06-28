@@ -83,8 +83,8 @@ type QueryResult struct {
 }
 
 type Group struct {
-	GroupInfos []GroupInfo     `json:"groupInfos"`
-	Values     [][]interface{} `json:"values"`
+	GroupInfos []GroupInfo `json:"groupInfos"`
+	Values     []Value     `json:"values"`
 }
 
 type GroupInfo struct {
@@ -122,8 +122,8 @@ type Filter struct {
 }
 
 type FieldFilter struct {
-	Field string `json:"start"`
-	Value string `json:"end"`
+	Field string `json:"field"`
+	Value string `json:"value"`
 }
 
 type TagFilter struct {
@@ -131,4 +131,34 @@ type TagFilter struct {
 	In    []string `json:"in"`
 	NotIn []string `json:"notIn"`
 	Like  string   `json:"like"`
+}
+
+type Column struct {
+	Name string `json:"name"`
+}
+
+type Value []interface{}
+type Raw []interface{}
+
+func (v Value) Timestamp() int64 {
+	if t, ok := v[0].(int64); ok {
+		return t
+	}
+	if t, ok := v[0].(float64); ok {
+		return int64(t)
+	}
+	return 0
+}
+
+func (v Value) Value() interface{} {
+	return v[1]
+}
+
+func (v Value) Tag(i int) interface{} {
+	return v[1+i]
+}
+
+type RowResult struct {
+	Columns []Column `json:"columns"`
+	Raw     []Raw    `json:"raw"`
 }

@@ -51,11 +51,14 @@ func (c *Client) WriteDatapoint(data []Datapoint) error {
 	return c.__post(URI_DATAPOINT, http.POST, &WriteDataPointArgs{DataPoints: data}, nil)
 }
 
-func (c *Client) __get(uri string, result interface{}) (err error) {
+func (c *Client) __get(uri string, result interface{}, params ...string) (err error) {
 	req := &bce.BceRequest{}
 	res := &bce.BceResponse{}
 	req.SetMethod(http.GET)
 	req.SetUri(uri)
+	for i, l := 0, len(params)/2; i < l; i++ {
+		req.SetParam(params[i*2+0], params[i*2+1])
+	}
 	if err = c.SendRequest(req, res); nil != err {
 		return
 	}
@@ -75,7 +78,6 @@ func (c *Client) __post(uri, method string, data, result interface{}, params ...
 	for i, l := 0, len(params)/2; i < l; i++ {
 		req.SetParam(params[i*2+0], params[i*2+1])
 	}
-	req.SetParam("query", "")
 	buf, err := json.Marshal(data)
 	if nil != err {
 		return
@@ -118,11 +120,19 @@ func (c *Client) ListDatapointByQuery(query Queries, disablePresampling ...bool)
 		URI_DATAPOINT,
 		http.PUT,
 		&ListDatapointArgs{Queries: query, DisablePresampling: len(disablePresampling) > 0 && disablePresampling[0]},
-		list,
-		"query", "")
+		list, "query", "")
 }
 
-func (c *Client) GeneratePresignedUrl(query Queries, expireSeconds int,endpoint ...string) (string, error) {
+func (c *Client) ListRowBySql(statement string) (*RowResult, error) {
+	list := &RowResult{}
+	err := c.__get(URI_DATAPOINT, list, "sql", statement)
+	if nil != err {
+		list = nil
+	}
+	return list, err
+}
+
+func (c *Client) GeneratePresignedUrl(query Queries, expireSeconds int, endpoint ...string) (string, error) {
 	buf, err := json.Marshal(&ListDatapointArgs{Queries: query})
 	if nil != err {
 		return "", err
