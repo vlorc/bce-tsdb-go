@@ -24,6 +24,7 @@ go get github.com\vlorc\bce-tsdb-go
 + ListFieldByMetric:  获取field列表
 + ListTagByMetric:  获取tag列表
 + ListDatapointByQuery:  查询data point
++ ListRowBySql:  基于sql查询row
 + GeneratePresignedUrl:  生成查询URL
 
 ## 例子
